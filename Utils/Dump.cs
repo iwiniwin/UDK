@@ -17,7 +17,7 @@ using System.Diagnostics;
 using UnityObject = UnityEngine.Object;
 using UnitDebug = UnityEngine.Debug;
 
-namespace Kit.Utils{
+namespace UKit.Utils{
     public delegate void LogDelegate(object message);
     public delegate void LogDelegate2(object message, UnityObject context);
 
