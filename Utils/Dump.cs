@@ -291,20 +291,22 @@ namespace UKit.Utils{
                 this.LineBreak();
                 this.level ++;
                 var properties = obj.GetType().GetProperties();
-                var last = properties[properties.Length - 1];
-                foreach(var property in properties){
-                    object value;
-                    try{
-                        value = property.GetValue(obj);
-                    }catch (Exception e){
-                        value = e.GetType();
-                    }
-                    if (value != null){
-                        this.StartLine($"{property.Name} {this.equalChar} ");
-                        this.FormatValue(value.ToString(), 0); //mark
-                        if (property != last)
-                            this.Write(",");
-                        this.LineBreak();
+                if(properties.Length > 0){
+                    var last = properties[properties.Length - 1];
+                    foreach(var property in properties){
+                        object value;
+                        try{
+                            value = property.GetValue(obj);
+                        }catch (Exception e){
+                            value = e.GetType();
+                        }
+                        if (value != null){
+                            this.StartLine($"{property.Name} {this.equalChar} ");
+                            this.FormatValue(value.ToString(), 0); //mark
+                            if (property != last)
+                                this.Write(",");
+                            this.LineBreak();
+                        }
                     }
                 }
                 this.level --;
