@@ -7,10 +7,10 @@ namespace UKit.Utils{
     public class ProfileTime
     {
         public double startTime;
-        public void start(){
+        public void Start(){
             this.startTime = DateTime.Now.ToUniversalTime().Ticks;
         }
-        public double stop(){
+        public double Stop(){
             return (DateTime.Now.ToUniversalTime().Ticks - this.startTime) / 10000.0 / 1000.0;
         }
     }
