@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UKit.Utils.Output;
 /*
 有些功能比较单一且需要用到脚本生命周期方法的类，比较适合使用这种单例脚本
  */
