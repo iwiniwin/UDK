@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 using static UKit.Utils.Output;
 
 public class UGUIEventListener : EventTrigger
@@ -9,11 +10,15 @@ public class UGUIEventListener : EventTrigger
     public UnityAction<GameObject, PointerEventData> onEnter;
     public UnityAction<GameObject, PointerEventData> onExit;
 
+    // 是否透传事件
+    public bool passthrough = false;
+
     public override void OnPointerClick(PointerEventData eventData){
         base.OnPointerClick(eventData);
         if(onClick != null){
             onClick(gameObject, eventData);
         }
+        PassEvent(eventData, ExecuteEvents.pointerClickHandler);
     }
 
     public override void OnPointerEnter(PointerEventData eventData){
@@ -21,6 +26,7 @@ public class UGUIEventListener : EventTrigger
         if(onEnter != null){
             onEnter(gameObject, eventData);
         }
+        PassEvent(eventData, ExecuteEvents.pointerEnterHandler);
     }
 
     public override void OnPointerExit(PointerEventData eventData){
@@ -28,16 +34,42 @@ public class UGUIEventListener : EventTrigger
         if(onExit != null){
             onExit(gameObject, eventData);
         }
+        PassEvent(eventData, ExecuteEvents.pointerExitHandler);
     }
 
     /// <summary>
     /// 获取或者添加UGUIEventListener脚本来实现对游戏对象的监听
     /// </summary>
-    public static UGUIEventListener Get(GameObject go){
+    public static UGUIEventListener Get(GameObject go, bool? passthrough = null){
         UGUIEventListener listener = go.GetComponent<UGUIEventListener>();
         if(listener == null){
             listener = go.AddComponent<UGUIEventListener>();
         }
+        if(passthrough != null){
+            listener.passthrough = (bool)passthrough;
+        }
         return listener;
+    }
+
+    /// <summary>
+    /// 渗透事件
+    /// </summary>
+    public void PassEvent<T>(PointerEventData data, ExecuteEvents.EventFunction<T> function) 
+        where T : IEventSystemHandler
+    {
+        if(!passthrough){
+            return;
+        }
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        // 找到所有能够传递事件的对象
+        EventSystem.current.RaycastAll(data, results);
+        GameObject current = data.pointerCurrentRaycast.gameObject;
+        for (int i = 0; i < results.Count; i++)
+        {
+            if(current != results[i].gameObject){
+                ExecuteEvents.Execute(results[i].gameObject, data, function);
+            }
+        }
     }
 }
