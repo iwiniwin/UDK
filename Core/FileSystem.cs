@@ -8,8 +8,8 @@ namespace UKit.Core{
             this.ExcludeNames = new HashSet<string>();
             this.ExcludeExtensions = new HashSet<string>();
         }
-        public HashSet<string> ExcludeNames;
-        public HashSet<string> ExcludeExtensions;
+        public HashSet<string> ExcludeNames{get; set;}
+        public HashSet<string> ExcludeExtensions{get; set;}
     }
 
     public class FileSystem 
