@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using static UKit.Utils.Output;
 namespace UKit.Core{
 
@@ -64,6 +66,11 @@ namespace UKit.Core{
             if(Directory.Exists(path)){
                 Directory.Delete(path);
             }
+        }
+
+        public static string GetMD5Hash(string path){
+            MD5 md5 = new MD5CryptoServiceProvider();
+            return BitConverter.ToString(md5.ComputeHash(File.ReadAllBytes(path))).Replace("-", "").ToLower();
         }
     }
 
