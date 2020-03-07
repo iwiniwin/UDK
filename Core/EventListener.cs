@@ -4,7 +4,11 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using static UKit.Utils.Output;
 
-public class UGUIEventListener : EventTrigger
+/// <summary>
+/// 统一事件管理
+/// 3D事件如果使用，需要给主摄像机绑定 Physics Raycaster 组件
+/// </summary>
+public class EventListener : EventTrigger
 {
     public UnityAction<GameObject, PointerEventData> onClick;
     public UnityAction<GameObject, PointerEventData> onEnter;
@@ -38,12 +42,12 @@ public class UGUIEventListener : EventTrigger
     }
 
     /// <summary>
-    /// 获取或者添加UGUIEventListener脚本来实现对游戏对象的监听
+    /// 获取或者添加EventListener脚本来实现对游戏对象的监听
     /// </summary>
-    public static UGUIEventListener Get(GameObject go, bool? passthrough = null){
-        UGUIEventListener listener = go.GetComponent<UGUIEventListener>();
+    public static EventListener Get(GameObject go, bool? passthrough = null){
+        EventListener listener = go.GetComponent<EventListener>();
         if(listener == null){
-            listener = go.AddComponent<UGUIEventListener>();
+            listener = go.AddComponent<EventListener>();
         }
         if(passthrough != null){
             listener.passthrough = (bool)passthrough;
