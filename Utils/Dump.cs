@@ -15,7 +15,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using UnityObject = UnityEngine.Object;
-using UnitDebug = UnityEngine.Debug;
+using UnityDebug = UnityEngine.Debug;
 
 namespace UKit.Utils{
     public delegate void LogDelegate(object message);
@@ -23,8 +23,8 @@ namespace UKit.Utils{
 
     public class Output
     {   
-        public static LogDelegate Log = new LogDelegate(UnitDebug.Log);
-        public static LogDelegate2 Log2 = new LogDelegate2(UnitDebug.Log);
+        public static LogDelegate Log = new LogDelegate(UnityDebug.Log);
+        public static LogDelegate2 Log2 = new LogDelegate2(UnityDebug.Log);
 
         //
         // 摘要:
@@ -296,19 +296,40 @@ namespace UKit.Utils{
                     foreach(var property in properties){
                         object value;
                         try{
-                            value = property.GetValue(obj);
+                            value = property.GetValue(obj);     // mark 异常将Unity自动捕获
                         }catch (Exception e){
                             value = e.GetType();
                         }
                         if (value != null){
                             this.StartLine($"{property.Name} {this.equalChar} ");
-                            this.FormatValue(value.ToString(), 0); //mark
+                            this.FormatValue(value.ToString(), 0); //mark 这里仅简单的ToString，不再深递归
                             if (property != last)
                                 this.Write(",");
                             this.LineBreak();
                         }
                     }
                 }
+
+                var fields = obj.GetType().GetFields();
+                if(fields.Length > 0){
+                    var last = fields[fields.Length - 1];
+                    foreach(var field in fields){
+                        object value;
+                        try{
+                            value = field.GetValue(obj);
+                        }catch (Exception e){
+                            value = e.GetType();
+                        }
+                        if (value != null){
+                            this.StartLine($"{field.Name} {this.equalChar} ");
+                            this.FormatValue(value.ToString(), 0); //mark 
+                            if (field != last)
+                                this.Write(",");
+                            this.LineBreak();
+                        }
+                    }
+                }
+
                 this.level --;
                 this.StartLine("}");
             }
