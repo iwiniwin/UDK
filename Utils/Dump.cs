@@ -242,7 +242,9 @@ namespace UKit.Utils{
                         this.Write(",");
                         this.LineBreak();
                     }
-                    this.FormatValue(enumerator.Current, this.level);
+
+                    this.StartLine($"{count - 1} {this.equalChar} ");
+                    this.FormatValue(enumerator.Current, 0);
 
                     for(int i = rank - 1; i >= 0; i --){
                         if (count % breakPoints[i] == 0){
