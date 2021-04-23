@@ -1,8 +1,8 @@
 ﻿/*
  * @Author: iwiniwin
  * @Date: 2020-11-08 17:47:07
- * @LastEditors: iwiniwin
- * @LastEditTime: 2021-01-27 22:37:20
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-04-23 16:42:15
  * @Description: 文件操作工具类
  */
 using System.Collections;
@@ -84,7 +84,8 @@ namespace UDK
             }
         }
 
-        public static string GetResourceName(string resPath) {
+        public static string GetResourceName(string resPath)
+        {
             int index = resPath.LastIndexOf("/");
             if (index == -1)
                 return resPath;
@@ -112,14 +113,39 @@ namespace UDK
             else
             {
                 TextAsset text = Resources.Load(path) as TextAsset;
-                if(text == null)
+                if (text == null)
                     DebugEx.LogError("can not find " + path);
                 return new MemoryStream(text.bytes);
             }
         }
 
-        public static StreamReader OpenText(string path){
+        public static StreamReader OpenText(string path)
+        {
             return new StreamReader(Open(path), System.Text.Encoding.Default);
+        }
+
+        public static byte[] ReadAllBytes(string inFile)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(inFile))
+                {
+                    return null;
+                }
+
+                if (!File.Exists(inFile))
+                {
+                    return null;
+                }
+
+                File.SetAttributes(inFile, FileAttributes.Normal);
+                return File.ReadAllBytes(inFile);
+            }
+            catch (System.Exception ex)
+            {
+                //  Logger.LogError(string.Format("SafeReadAllBytes failed! path = {0} with err = {1}", inFile, ex.Message));
+                return null;
+            }
         }
     }
 }
