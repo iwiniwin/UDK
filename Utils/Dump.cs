@@ -1,13 +1,13 @@
-﻿/**
- *Author:       LeirZhang
- *Version:      1.0.0
- *Date:         2019-08-10 16:52:00
- *Description:   
- 用于Unity的日志格式化打印工具，其他C#项目略作修改也可使用
- 支持包含且不限于数组，字典，列表等各种数据结构的格式化输出
- Log formatting printing tool for Unity, other C# items can be modified slightly
- Supports formatted output of various data structures including, but not limited to, arrays, dictionaries, lists, etc.
-**/
+﻿/*
+ * @Author: iwiniwin
+ * @Date: 2020-11-08 19:33:53
+ * @LastEditors: iwiniwin
+ * @LastEditTime: 2020-12-06 12:25:01
+ * @Description: 用于Unity的日志格式化打印工具，其他C#项目略作修改也可使用
+ * 支持包含且不限于数组，字典，列表等各种数据结构的格式化输出
+ * Log formatting printing tool for Unity, other C# items can be modified slightly
+ * Supports formatted output of various data structures including, but not limited to, arrays, dictionaries, lists, etc.
+ */
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,16 +15,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using UnityObject = UnityEngine.Object;
-using UnityDebug = UnityEngine.Debug;
+// using DebugClass = UnityEngine.Debug;
+using DebugClass = UDK.DebugEx;
 
-namespace UKit.Utils{
+namespace UDK{
     public delegate void LogDelegate(object message);
     public delegate void LogDelegate2(object message, UnityObject context);
 
     public class Output
     {   
-        public static LogDelegate Log = new LogDelegate(UnityDebug.Log);
-        public static LogDelegate2 Log2 = new LogDelegate2(UnityDebug.Log);
+        public static LogDelegate Log = new LogDelegate(DebugClass.Log);
+        public static LogDelegate2 Log2 = new LogDelegate2(DebugClass.Log);
 
         //
         // 摘要:
@@ -242,9 +243,7 @@ namespace UKit.Utils{
                         this.Write(",");
                         this.LineBreak();
                     }
-
-                    this.StartLine($"{count - 1} {this.equalChar} ");
-                    this.FormatValue(enumerator.Current, 0);
+                    this.FormatValue(enumerator.Current, this.level);
 
                     for(int i = rank - 1; i >= 0; i --){
                         if (count % breakPoints[i] == 0){
@@ -298,40 +297,19 @@ namespace UKit.Utils{
                     foreach(var property in properties){
                         object value;
                         try{
-                            value = property.GetValue(obj);     // mark 异常将Unity自动捕获
+                            value = property.GetValue(obj);
                         }catch (Exception e){
                             value = e.GetType();
                         }
                         if (value != null){
                             this.StartLine($"{property.Name} {this.equalChar} ");
-                            this.FormatValue(value.ToString(), 0); //mark 这里仅简单的ToString，不再深递归
+                            this.FormatValue(value.ToString(), 0); //mark
                             if (property != last)
                                 this.Write(",");
                             this.LineBreak();
                         }
                     }
                 }
-
-                var fields = obj.GetType().GetFields();
-                if(fields.Length > 0){
-                    var last = fields[fields.Length - 1];
-                    foreach(var field in fields){
-                        object value;
-                        try{
-                            value = field.GetValue(obj);
-                        }catch (Exception e){
-                            value = e.GetType();
-                        }
-                        if (value != null){
-                            this.StartLine($"{field.Name} {this.equalChar} ");
-                            this.FormatValue(value.ToString(), 0); //mark 
-                            if (field != last)
-                                this.Write(",");
-                            this.LineBreak();
-                        }
-                    }
-                }
-
                 this.level --;
                 this.StartLine("}");
             }
