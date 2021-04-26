@@ -1,8 +1,8 @@
 ﻿/*
  * @Author: iwiniwin
  * @Date: 2020-11-06 00:52:28
- * @LastEditors: iwiniwin
- * @LastEditTime: 2020-11-08 17:47:55
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-04-26 17:50:09
  * @Description: 单例
  */
 using System.Collections;
@@ -43,9 +43,15 @@ namespace UDK
                     _instance = FindObjectOfType(typeof(T)) as T;
                 }
                 if(_instance == null){
-                    GameObject obj = new GameObject();
-                    obj.hideFlags = HideFlags.HideAndDontSave;
+                    GameObject obj = new GameObject(typeof(T).Name);
                     _instance = obj.AddComponent(typeof(T)) as T;
+                    GameObject parent = GameObject.Find("Boot");
+                    if(parent == null)
+                    {
+                        parent = new GameObject("Boot");
+                        GameObject.DontDestroyOnLoad(parent);
+                    }
+                    obj.transform.parent = parent.transform;
                 }
                 return _instance;
             }
