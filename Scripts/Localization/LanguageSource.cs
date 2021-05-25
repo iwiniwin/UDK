@@ -31,6 +31,16 @@ namespace UDK.Localization
         {
             return keys.ContainsKey(key);
         }
+
+        public Dictionary<uint, string> GetData()
+        {
+            Dictionary<uint, string> data = new Dictionary<uint, string>();
+            foreach(var entry in entries)
+            {
+                data[entry.Key] = entry.Value;
+            }
+            return data;
+        }
     }
 
     [Serializable]
