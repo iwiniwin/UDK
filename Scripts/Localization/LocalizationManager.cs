@@ -7,9 +7,8 @@ namespace UDK.Localization
 {
     public class LocalizationManager : Singleton<LocalizationManager>
     {
-        private static readonly CultureInfo DEFAULT_CULTUREINFO = new CultureInfo("zh-CN");
         private Dictionary<uint, string> localizationData = new Dictionary<uint, string>();
-        private Dictionary<string, bool> loadedAssets = new Dictionary<string, bool>();
+        private HashSet<string> loadedAssets = new HashSet<string>();
         private CultureInfo m_CultureInfo;
 
         public CultureInfo CultureInfo
@@ -22,7 +21,7 @@ namespace UDK.Localization
 
         public LocalizationManager()
         {
-            m_CultureInfo = DEFAULT_CULTUREINFO;
+            m_CultureInfo = Locale.GetCultureInfo();
         }
 
         public string GetLocalizationValue(string key)
@@ -38,6 +37,26 @@ namespace UDK.Localization
             return key;
         }
 
+        public void ChangeLanguage(SystemLanguage language, bool autoRefresh = false)
+        {
+            var cultureInfo = Locale.GetCultureInfoByLanguage(language);
+            if(cultureInfo == m_CultureInfo)
+                return;
+            m_CultureInfo = cultureInfo;
+            ReloadAllAssets();
+            if(autoRefresh)
+                RefreshAllLocalizedText();
+        }   
+
+        public void ReloadAllAssets()
+        {
+            localizationData.Clear();
+            foreach(var assetName in loadedAssets)
+            {
+                LoadLanguageAsset(assetName);
+            }
+        }
+
         public void LoadLanguageAsset(string assetName, IDataProvider provider = null)
         {   
             if(provider == null)
@@ -45,7 +64,7 @@ namespace UDK.Localization
                  provider = new DefaultDataProvider();
             }
             provider.Load(this.m_CultureInfo, assetName, OnLanguageAssetComplete);
-            loadedAssets[assetName] = true;
+            loadedAssets.Add(assetName);
         }
 
         public void OnLanguageAssetComplete(Dictionary<uint, string> data)
@@ -63,7 +82,19 @@ namespace UDK.Localization
 
         public bool IsLoadedAsset(string assetName)
         {
-            return loadedAssets.ContainsKey(assetName);
+            return loadedAssets.Contains(assetName);
+        }
+
+        public void RefreshAllLocalizedText()
+        {
+            foreach (GameObject rootObj in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+            {
+                var components = rootObj.GetComponentsInChildren<LocalizedText>();
+                foreach(var component in components)
+                {
+                    component.SetText(component.Key);
+                }
+            }
         }
     }
 }
