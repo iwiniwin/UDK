@@ -10,7 +10,7 @@ namespace UDK.Localization.Editor
 {
     public class LanguageSourceAssetBuilder
     {
-        private static string rootPath = "Assets/LocalizationTest/{0}.asset";
+        private static string rootPath = "Assets/Resources/LocalizationTest/zh-CN/{0}.asset";
         [MenuItem("Assets/Test Spawn", false, 1)]
         public static void GenerateUILanguage()
         {
@@ -92,17 +92,11 @@ namespace UDK.Localization.Editor
             AssetDatabase.CreateAsset(sourceAsset, string.Format(rootPath, assetName));
         }
 
-        private static string GetPropertyValue(string name, object obj)
-        {
-            var value = obj.GetType().GetProperty(name).GetValue(obj, null);
-            return value?.ToString();
-        }
-
         private static void ModifyLocalizedText(LocalizedText text, string key, string assetName)
         {
             SerializedObject so = new SerializedObject(text);
-            so.FindProperty("m_Key").stringValue = key;
-            so.FindProperty("m_AssetName").stringValue = assetName;
+            so.FindProperty("Key").stringValue = key;
+            so.FindProperty("AssetName").stringValue = assetName;
             so.ApplyModifiedProperties();
         }
     }

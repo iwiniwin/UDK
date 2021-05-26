@@ -4,10 +4,12 @@ namespace UDK.Localization
 {
     public abstract class LocalizedText : MonoBehaviour
     {
+        [ReadOnly]
         [SerializeField]
-        private string m_Key;
+        public string Key;
+        [ReadOnly]
         [SerializeField]
-        private string m_AssetName;
+        public string AssetName;
 
         private bool enableTranslation;
 
@@ -15,18 +17,6 @@ namespace UDK.Localization
         {
             get;
             set;
-        }
-
-        public string Key
-        {
-            get { return m_Key; }
-            set { m_Key = value; }
-        }
-
-        public string AssetName
-        {
-            get { return m_AssetName; }
-            set { m_AssetName = value; }
         }
 
         private void Awake()
