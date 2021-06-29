@@ -55,60 +55,91 @@ namespace UDK.Coroutines
             {
                 instance = new Coroutines();
             }
-            instance.Start(coroutine);
+            instance.StartCoroutine(coroutine);
             return coroutine;
         }
 
         public static void Stop(IEnumerator routine, object target)
         {
-
-        }
-
-        public static void Stop(Coroutine routine)
-        {
-
+            Stop(new Coroutine(routine, target));
         }
 
         public static void Stop(string methodName, object target)
         {
+            Stop(new Coroutine(null, methodName, target));
+        }
 
+        public static void Stop(Coroutine routine)
+        {
+            if(instance == null) return;
+            instance.StopCoroutine(routine);
         }
 
         public static void StopAll(object target)
         {
-
+            if(instance == null) return;
+            instance.StopAllCoroutines(new Coroutine(null, target).TargetKey);
         }
 
         public static void StopAll()
         {
+            if(instance == null) return;
+            instance.StopAllCoroutines();
+        }
 
+        private void StopCoroutine(Coroutine routine)
+        {
+            if(m_CoroutineDict.ContainsKey(routine.Key))
+            {
+                m_CoroutineDict.Remove(routine.Key);
+            }
+        }
+
+        private void StopAllCoroutines(string targetKey)
+        {
+            List<string> keys = new List<string>(m_CoroutineDict.Keys);
+            foreach (string key in keys)
+            {
+                List<Coroutine> coroutines = m_CoroutineDict[key];
+                for (int i = coroutines.Count - 1; i >= 0; i--)
+                {
+                    if(coroutines[i].TargetKey == targetKey)
+                    {
+                        coroutines.RemoveAt(i);
+                    }
+                }
+                if(m_CoroutineDict[key].Count == 0)
+                {
+                    m_CoroutineDict.Remove(key);
+                }
+            }
+        }
+
+        private void StopAllCoroutines()
+        {
+            m_CoroutineDict.Clear();
         }
 
         public static void Update()
         {
             if (instance == null) return;
-            if(lastFrameCount == Time.frameCount)
-            {
-                Debug.LogError("Coroutines.Update is called multiple times in one frame");
-            }
             lastFrameCount = Time.frameCount;
             instance.OnUpdate(Time.deltaTime);
         }
 
-        private void Start(Coroutine coroutine)
+        private void StartCoroutine(Coroutine coroutine)
         {
+            MoveNext(coroutine);
             if (!m_CoroutineDict.ContainsKey(coroutine.Key))
             {
                 m_CoroutineDict.Add(coroutine.Key, new List<Coroutine>());
             }
             m_CoroutineDict[coroutine.Key].Add(coroutine);
-            MoveNext(coroutine);
         }
 
         private void OnUpdate(float dt)
         {
             if (m_CoroutineDict.Count == 0) return;
-            // Debug.Log(m_CoroutineDict.Count + "  m_CoroutineDict.Count");
             List<string> keys = new List<string>(m_CoroutineDict.Keys);
             foreach (string key in keys)
             {
@@ -158,6 +189,10 @@ namespace UDK.Coroutines
                     coroutine = nestedCoroutine
                 };
             }
+            else if(current is ICoroutineYield)
+            {
+                coroutine.CurrentYield = (ICoroutineYield)current;
+            }
             else
             {
                 coroutine.CurrentYield = new YieldDefault();
@@ -177,7 +212,7 @@ namespace UDK.Coroutines
         private IEnumerator m_Routine;
         internal IEnumerator Routine => m_Routine;
 
-        internal bool Finished = false;
+        internal bool Finished {get; set;}
 
         internal ICoroutineYield CurrentYield = new YieldDefault();
 
@@ -194,7 +229,10 @@ namespace UDK.Coroutines
             {
                 this.m_TargetKey = target.GetHashCode().ToString();
             }
-            this.m_Key = this.m_TargetKey + routine.GetHashCode().ToString();
+            if(routine != null)
+            {
+                this.m_Key = this.m_TargetKey + routine.GetHashCode().ToString();
+            }
             this.m_Routine = routine;
         }
     }
